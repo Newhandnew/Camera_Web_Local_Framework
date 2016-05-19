@@ -126,8 +126,9 @@ setInterval(()=>{
 
 },5000);
 
-app.use(express.static('static'));
-app.use(bodyParser.json({limit: '6mb'}));
+app.use(express.static('static/webrtc'));
+app.use(bodyParser.json({limit: '50mb'}));
+app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 
 app.get('/status',(req,res)=>{
   res.json(latestOutcome);
@@ -163,6 +164,28 @@ app.post('/addURL',function(req,http_res){
     }
     //add the extension to the filename
     fs.rename(newpath,newpath+'.'+res.extension);
+    console.log({path:newpath+'.'+res.extension,sha256sum:res.sha256sum});
+    pending.push({path:newpath+'.'+res.extension,sha256sum:res.sha256sum});
+    http_res.json(res);
+  });
+});
+
+app.post('/camera',function(req,http_res){
+  // var jsonObject = JSON.parse(req.body);
+  var img = req.body.base64img;
+  // console.log("req: "+img);
+  if(!img){
+    http_res.status(400).json({error:"url field must be present and be a string containing the URL of the image to process"});
+    return;
+  }
+  var newpath = '/tmp/'+uuid.v1();
+
+  helpers.getBase64Img(img,newpath,function(err,res){
+    if(err){
+      http_res.status(400).json(err);
+      return;
+    }
+    //add the extension to the filename
     console.log({path:newpath+'.'+res.extension,sha256sum:res.sha256sum});
     pending.push({path:newpath+'.'+res.extension,sha256sum:res.sha256sum});
     http_res.json(res);

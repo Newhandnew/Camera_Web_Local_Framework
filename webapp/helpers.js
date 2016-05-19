@@ -76,6 +76,50 @@ module.exports.retrieveLocalFile = function(source, dest, cb) {
   });
 };
 
+// get base64 image for camera
+module.exports.getBase64Img = function(img, dest, cb) {
+  var imgData = img.replace(/^data:image\/\w+;base64,/, "");
+  var buf = new Buffer(imgData, 'base64');
+  var imgPath = dest + ".png";
+  console.log("image path: " + imgPath);
+  fs.writeFile(imgPath, buf, function(err) {
+    if(err){
+      cb(err);
+      return;
+    }else{
+      var hasher = crypto.createHash('sha256');
+      hasher.setEncoding('hex');
+      hasher.end();
+      var thisHash = hasher.read();
+      var detectedFileType = "png";
+      cb(err,{extension:detectedFileType, sha256sum:thisHash});
+    };
+  });
+  // });
+  // var file = fs.createWriteStream(dest);
+  // var response = fs.createReadStream(buf);  
+  // var hasher = crypto.createHash('sha256');
+  // hasher.setEncoding('hex');
+  // response.pipe(hasher);
+  // response.pipe(file);
+  // file.on('finish', function() {
+  //   file.close(function(err,resp){
+  //     if(err){
+  //       cb(err);S
+  //       return;
+  //     }
+  //     hasher.end();
+  //     var thisHash = hasher.read();
+  //     var fType = fileType(readChunk.sync(dest, 0, 262));
+  //     if(fType === null){
+  //       cb({error:"cannot determine file type, is the URL correct?"});
+  //       return;
+  //     }
+  //     var detectedFileType = fType.ext;
+  //     cb(err,{response:resp,extension:detectedFileType, sha256sum:thisHash});
+  //   });
+  // });
+};
 
 
 //shamelessly copied from http://stackoverflow.com/questions/11293857/fastest-way-to-copy-file-in-node-js
