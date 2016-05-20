@@ -3,14 +3,19 @@ var fs = require('fs');
 var nconf = require('nconf');
 var express = require('express');
 var app = express();
-var server = require('http').createServer(app);
+var https = require('https')
 var bodyParser = require('body-parser');
 var helpers = require('./helpers');
 var NodeCache = require("node-cache");
 var uuid = require('uuid');
 var multer  = require('multer');
 var upload = multer({ dest: '/tmp' });
+var credentials = {
+  key: fs.readFileSync('sslcert/key.pem'),
+  cert: fs.readFileSync('sslcert/cert.pem')
+};
 
+var httpsServer = https.createServer(credentials, app);
 
 //this object will map the images SHA256 sums with their captions
 var sha256Captions = new NodeCache({stdTTL: 60*30, checkperiod: 11});
@@ -32,7 +37,7 @@ nconf.defaults({
 });
 
 
-//check that the model and the processing folder are present
+// check that the model and the processing folder are present
 try{
   fs.statSync(nconf.get('modelPath'));
 }
@@ -194,8 +199,8 @@ app.post('/camera',function(req,http_res){
 
 
 //start the server
-server.listen(nconf.get('port'), function () {
-  var port = server.address().port;
+httpsServer.listen(nconf.get('port'), function () {
+  var port = httpsServer.address().port;
   console.log(' Application started on port', port);
 });
 
