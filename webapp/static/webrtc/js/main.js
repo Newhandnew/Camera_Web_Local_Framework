@@ -82,7 +82,7 @@ button.onclick = function() {
     success: function(resp){
       var pending_hash = resp.sha256sum;
       var status_elem = document.getElementById("caption");
-      status_elem.style.color='yellow';
+      status_elem.style.color='orange';
       status_elem.innerText = "waiting for the captioning of the image...";
       var checkTimer = setInterval(function(){
         var r = new XMLHttpRequest();
@@ -93,7 +93,7 @@ button.onclick = function() {
             status_elem.innerText="ERROR REQUESTING CAPTION STATUS!";
           }
           else{
-            status_elem.style.color='green';
+            status_elem.style.color='blue';
             status_elem.innerText=r.responseText;
           }
         };
