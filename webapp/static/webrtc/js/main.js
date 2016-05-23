@@ -84,20 +84,43 @@ button.onclick = function() {
       var status_elem = document.getElementById("caption");
       status_elem.style.color='orange';
       status_elem.innerText = "waiting for the captioning of the image...";
+      var fDone = 0;
+      var numCheck = 0;
+      var checkLimit = 8;
       var checkTimer = setInterval(function(){
         var r = new XMLHttpRequest();
         r.open("GET", "/caption/"+pending_hash);
         r.onreadystatechange = function () {
           if (r.readyState != 4){
             status_elem.style.color='red';
-            status_elem.innerText="ERROR REQUESTING CAPTION STATUS!";
+            status_elem.innerText="waiting....";
           }
           else{
             status_elem.style.color='blue';
-            status_elem.innerText=r.responseText;
+            var jsonResponse = JSON.parse(r.responseText);
+            if (!jsonResponse.caption) {
+              if (numCheck > checkLimit) {
+                status_elem.style.color='red';
+                status_elem.innerText = 'Time out!';
+                fDone = 1;
+              }
+              else {
+                jsonResponse.caption = 'waiting....';
+              }
+            }
+            else {
+              status_elem.innerText = jsonResponse.caption;
+              fDone = 1;
+            }
           }
         };
-        r.send();
+        if (fDone) {
+          return;
+        }
+        else {
+          r.send();
+          numCheck +=1;
+        }
       },2000);
     }
   })

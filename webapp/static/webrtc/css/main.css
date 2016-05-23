@@ -76,8 +76,8 @@ border-radius: 2px;
 color: white;
 font-family: 'Roboto', sans-serif;
 font-size: 140%;
-margin: 10px;
-padding: 0.5em 0.7em 0.6em 0.7em;
+margin: 6px;
+padding: 0.5em 0.7em 0.5em 0.7em;
 }
 
 button:active {
@@ -222,7 +222,7 @@ label {
 }
 
 div#caption {
-  font-size: 180%;
+  font-size: 200%;
   font-weight: 500;
 }
 
