@@ -86,7 +86,7 @@ button.onclick = function() {
       status_elem.innerText = "waiting for the captioning of the image...";
       var fDone = 0;
       var numCheck = 0;
-      var checkLimit = 8;
+      var checkLimit = 10;
       var checkTimer = setInterval(function(){
         var r = new XMLHttpRequest();
         r.open("GET", "/caption/"+pending_hash);

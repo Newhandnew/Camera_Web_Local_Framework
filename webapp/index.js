@@ -3,7 +3,8 @@ var fs = require('fs');
 var nconf = require('nconf');
 var express = require('express');
 var app = express();
-var https = require('https')
+// var https = require('https');
+var http = require('http');
 var bodyParser = require('body-parser');
 var helpers = require('./helpers');
 var NodeCache = require("node-cache");
@@ -15,7 +16,8 @@ var credentials = {
   cert: fs.readFileSync('sslcert/cert.pem')
 };
 
-var httpsServer = https.createServer(credentials, app);
+var httpServer = http.createServer(app);
+// var httpsServer = https.createServer(credentials, app);
 
 //this object will map the images SHA256 sums with their captions
 var sha256Captions = new NodeCache({stdTTL: 60*30, checkperiod: 11});
@@ -30,7 +32,8 @@ var latestOutcome = {timestamp:new Date().toISOString(), status:'OK', detail:'ne
 nconf.argv().env();
 
 nconf.defaults({
-  port: 5000,
+  httpPort: 5000,
+  httpsPort: 8000,
   modelPath: '/mounted/model/model_id1-501-1448236541.t7_cpu.t7',
   processFolder: '/tmp/',
   useGPU: '-1'
@@ -56,6 +59,17 @@ catch(e){
   process.exit(1);
 }
 
+
+//start the server
+httpServer.listen(nconf.get('httpPort'), function () {
+  var port = httpServer.address().port;
+  console.log(' Application http started on port', port);
+});
+
+// httpsServer.listen(nconf.get('httpsPort'), function () {
+//   var port = httpsServer.address().port;
+//   console.log(' Application https started on port', port);
+// });
 
 var runNeuralTalk = function(callback){
   var spawn = require('child_process').spawn;
@@ -196,14 +210,6 @@ app.post('/camera',function(req,http_res){
     http_res.json(res);
   });
 });
-
-
-//start the server
-httpsServer.listen(nconf.get('port'), function () {
-  var port = httpsServer.address().port;
-  console.log(' Application started on port', port);
-});
-
 
 app.post('/upload',upload.single('file'), function (req, http_res, next) {
   console.log("uploaded new file: "+req.file.path);
